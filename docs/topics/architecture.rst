@@ -29,41 +29,43 @@ Data flow
 The data flow in Scrapy is controlled by the execution engine, and goes like
 this:
 
-1. The :ref:`Engine <component-engine>` gets the first URLs to crawl from the
+1. The :ref:`Engine <component-engine>` gets the initial Requests to crawl from the
    :ref:`Spider <component-spiders>`.
 
-2. The :ref:`Engine <component-engine>` schedules the URLs in the
-   :ref:`Scheduler <component-scheduler>` as Requests and asks for the
-   next URLs to crawl.
+2. The :ref:`Engine <component-engine>` schedules the Requests in the
+   :ref:`Scheduler <component-scheduler>` and asks for the
+   next Requests to crawl.
 
-3. The :ref:`Scheduler <component-scheduler>` returns the next URLs to crawl
+3. The :ref:`Scheduler <component-scheduler>` returns the next Requests
    to the :ref:`Engine <component-engine>`.
 
-4. The :ref:`Engine <component-engine>` sends the URLs to the
+4. The :ref:`Engine <component-engine>` sends the Requests to the
    :ref:`Downloader <component-downloader>`, passing through the
-   :ref:`Downloader Middleware <component-downloader-middleware>`
-   (request direction).
+   :ref:`Downloader Middlewares <component-downloader-middleware>` (see
+   :meth:`~scrapy.downloadermiddlewares.DownloaderMiddleware.process_request`).
 
 5. Once the page finishes downloading the
    :ref:`Downloader <component-downloader>` generates a Response (with
    that page) and sends it to the Engine, passing through the
-   :ref:`Downloader Middleware <component-downloader-middleware>`
-   (response direction).
+   :ref:`Downloader Middlewares <component-downloader-middleware>` (see
+   :meth:`~scrapy.downloadermiddlewares.DownloaderMiddleware.process_response`).
 
 6. The :ref:`Engine <component-engine>` receives the Response from the
    :ref:`Downloader <component-downloader>` and sends it to the
    :ref:`Spider <component-spiders>` for processing, passing
-   through the :ref:`Spider Middleware <component-spider-middleware>`
-   (input direction).
+   through the :ref:`Spider Middleware <component-spider-middleware>` (see
+   :meth:`~scrapy.spidermiddlewares.SpiderMiddleware.process_spider_input`).
 
 7. The :ref:`Spider <component-spiders>` processes the Response and returns
    scraped items and new Requests (to follow) to the
    :ref:`Engine <component-engine>`, passing through the
-   :ref:`Spider Middleware <component-spider-middleware>` (output direction).
+   :ref:`Spider Middleware <component-spider-middleware>` (see
+   :meth:`~scrapy.spidermiddlewares.SpiderMiddleware.process_spider_output`).
 
 8. The :ref:`Engine <component-engine>` sends processed items to
-   :ref:`Item Pipelines <component-pipelines>` and processed Requests to
-   the :ref:`Scheduler <component-scheduler>`.
+   :ref:`Item Pipelines <component-pipelines>`, then send processed Requests to
+   the :ref:`Scheduler <component-scheduler>` and asks for possible next Requests
+   to crawl.
 
 9. The process repeats (from step 1) until there are no more requests from the
    :ref:`Scheduler <component-scheduler>`.
@@ -102,7 +104,7 @@ Spiders
 -------
 
 Spiders are custom classes written by Scrapy users to parse responses and
-extract items (aka scraped items) from them or additional URLs (requests) to
+extract items (aka scraped items) from them or additional requests to
 follow. For more information see :ref:`topics-spiders`.
 
 .. _component-pipelines:
